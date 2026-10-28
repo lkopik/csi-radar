@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+# данные конкретной комнаты и записи
+calibration.json
+radar_log*.csv
+csi_*.csv
+# сборка ESP-IDF
+firmware/*/build/
+firmware/*/sdkconfig
+firmware/*/sdkconfig.old
+firmware/*/managed_components/
+firmware/*/dependencies.lock
