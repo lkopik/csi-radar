@@ -4,6 +4,7 @@ python/
 # сборка .exe (packaging\build_exe.ps1)
 build/
 dist/
+*.spec
 __pycache__/
 # данные конкретной комнаты и записи
 calibration.json
