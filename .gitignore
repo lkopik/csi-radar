@@ -6,6 +6,8 @@ __pycache__/
 calibration.json
 radar_log*.csv
 csi_*.csv
+# последний выбранный COM-порт
+com_port.txt
 # сборка ESP-IDF
 firmware/*/build/
 firmware/*/sdkconfig

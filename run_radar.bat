@@ -2,9 +2,55 @@
 chcp 866 >nul
 setlocal EnableExtensions
 cd /d "%~dp0"
-title CSI-радар - плата на COM10
+title CSI-радар - плата-приёмник
 
-set "ARGS=--port COM10 %*"
+set "PORT="
+rem --- порт: из аргумента --port, иначе единственный доступный, иначе вопрос ---
+echo %* | find /i "--port" >nul
+if not errorlevel 1 goto :port_from_arg
+if exist "com_port.txt" set /p "PORT="<com_port.txt
+if not defined PORT set "PORT=COM10"
+set "FOUND="
+set "MANY="
+for /f "tokens=3" %%p in ('reg query HKLM\HARDWARE\DEVICEMAP\SERIALCOMM 2^>nul') do (
+    if not defined FOUND (set "FOUND=%%p") else (set "MANY=1")
+)
+if not defined FOUND (
+    echo.
+    echo Плата не найдена: COM-порты отсутствуют.
+    echo Будет использован %PORT%. Если порт другой - запустите: run_radar.bat --port COMx
+    goto :port_ready
+)
+if defined MANY goto :port_ask
+set "PORT=%FOUND%"
+goto :port_ready
+
+:port_ask
+echo.
+echo Доступные COM-порты:
+for /f "tokens=3" %%p in ('reg query HKLM\HARDWARE\DEVICEMAP\SERIALCOMM 2^>nul') do echo    %%p
+set "N=%PORT:COM=%"
+set /p "P=Номер COM-порта платы-приёмника [%N%]: "
+if defined P set "PORT=COM%P:COM=%"
+
+:port_ready
+if defined PORT >com_port.txt echo %PORT%
+if defined NOADD set "ARGS=%*"
+if not defined NOADD set "ARGS=--port %PORT% %*"
+goto :main
+
+:port_from_arg
+set "NOADD=1"
+set "PORT="
+set "GRAB="
+for %%a in (%*) do (
+    if defined GRAB (
+        set "PORT=%%a"
+        goto :port_ready
+    )
+    if %%a==--port set "GRAB=1"
+)
+goto :port_ready
 goto :main
 
 :sys_python
