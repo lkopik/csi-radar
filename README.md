@@ -14,6 +14,7 @@
 | `python\` | переносимый Python 3.8 с библиотеками (не в git, см. ниже) |
 | `firmware/csi_send`, `firmware/csi_recv` | прошивки: передатчик и приёмник |
 | `firmware/build.ps1` | сборка и прошивка через ESP-IDF |
+| `packaging/build_exe.ps1` | сборка `dist\CSI_radar.exe` и `dist\CSI_radar_demo.exe` |
 | `ВЫСТУПЛЕНИЕ.md` | как расставить платы и что показывать |
 
 ## Прошивки
@@ -49,6 +50,19 @@ pyserial, pyqtgraph) и запустить `run_radar.bat` или `run_demo.bat`
 `requirements.txt` (при первом запуске нужен интернет). Если `pypi.org` недоступен, передайте зеркало:
 добавьте `-i https://mirrors.aliyun.com/pypi/simple` в строку `pip install -r requirements.txt` внутри .bat.
 При любой ошибке окно остаётся открытым с описанием.
+
+### Готовые .exe (один файл, без Python и .bat)
+
+`dist\CSI_radar.exe` — с платой: если плата одна, порт берётся сам, иначе программа спрашивает в окне
+(или `CSI_radar.exe --port COM5`). `dist\CSI_radar_demo.exe` — демо без платы.
+Каждый — один файл ~47 МБ, скопировать на любой ПК с 64-битной Windows 7 SP1 или новее.
+Собраны из `python\` (Python 3.8), поэтому совместимы с Windows 7; пересборка:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\build_exe.ps1
+```
+
+`calibration.json` и `radar_log.csv` пишутся рядом с .exe. В git `dist\` не входит.
 
 ### Вручную
 

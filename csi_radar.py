@@ -26,7 +26,9 @@ import numpy as np
 import pyqtgraph as pg
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-HERE = Path(__file__).resolve().parent
+# в собранном .exe __file__ указывает во временную папку — файлы пишем рядом с exe
+HERE = (Path(sys.executable).resolve().parent if getattr(sys, "frozen", False)
+        else Path(__file__).resolve().parent)
 CALIB_FILE = HERE / "calibration.json"
 LABELS = ["empty", "walk", "stand", "sit", "wave"]
 
@@ -613,21 +615,40 @@ class RadarWindow(QtWidgets.QMainWindow):
         super().closeEvent(e)
 
 
+def pick_port():
+    """Порт платы-приёмника: единственный — берём сами, иначе спрашиваем. None — отмена."""
+    from serial.tools import list_ports
+    ports = [(p.device, p.description) for p in list_ports.comports()]
+    if len(ports) == 1:
+        return ports[0][0]
+    title, question = "CSI-радар", "COM-порт платы-приёмника:"
+    if ports:
+        items = [f"{device}   {desc}" for device, desc in ports]
+        item, ok = QtWidgets.QInputDialog.getItem(None, title, question, items, 0, False)
+        return item.split()[0] if ok else None
+    port, ok = QtWidgets.QInputDialog.getText(None, title, question + "\nплата не найдена, введите вручную",
+                                               text="COM10")
+    return port.strip() if ok and port.strip() else None
+
+
 def main():
     ap = argparse.ArgumentParser(description="CSI-радар на ESP32-S3")
-    ap.add_argument("--port", default="COM10", help="порт платы-приёмника (csi_recv)")
+    ap.add_argument("--port", default=None, help="порт платы-приёмника (csi_recv); без него — выбор в окне")
     ap.add_argument("--baud", type=int, default=921600)
     ap.add_argument("--demo", action="store_true", help="синтетические данные без плат")
     args = ap.parse_args()
 
+    app = QtWidgets.QApplication(sys.argv)
     q = queue.Queue(maxsize=5000)
     if args.demo:
         src, label = DemoSource(q), "ДЕМО"
     else:
-        src, label = SerialSource(args.port, args.baud, q), f"{args.port} @ {args.baud}"
+        port = args.port or pick_port()
+        if not port:
+            return
+        src, label = SerialSource(port, args.baud, q), f"{port} @ {args.baud}"
     src.start()
 
-    app = QtWidgets.QApplication(sys.argv)
     w = RadarWindow(src, q, label, args.demo)
     w.show()
     sys.exit(app.exec_())

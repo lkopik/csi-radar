@@ -1,6 +1,9 @@
 .venv/
 # переносимый Python для запуска без установки (в т.ч. на Windows 7)
 python/
+# сборка .exe (packaging\build_exe.ps1)
+build/
+dist/
 __pycache__/
 # данные конкретной комнаты и записи
 calibration.json
