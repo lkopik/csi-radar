@@ -1,6 +1,7 @@
 """CSI-радар: обнаружение людей по Wi-Fi CSI (ESP32-S3, примеры esp-csi get-started).
 
-Запуск:
+Запуск: run_demo.bat / run_radar.bat — сами находят Python и ставят зависимости
+(работают на Windows 7: папка python\ с Python 3.8 + PyQt5, либо Python 3.8-3.13 в системе).
     python csi_radar.py --port COM10        # живые данные с платы-приёмника
     python csi_radar.py --demo              # синтетические данные без плат
 
@@ -23,7 +24,7 @@ from pathlib import Path
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 HERE = Path(__file__).resolve().parent
 CALIB_FILE = HERE / "calibration.json"
@@ -629,7 +630,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     w = RadarWindow(src, q, label, args.demo)
     w.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

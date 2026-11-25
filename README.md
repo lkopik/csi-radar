@@ -9,8 +9,9 @@
 
 | Путь | Что это |
 |---|---|
-| `csi_radar.py` | программа на ПК (PyQt6 + pyqtgraph) |
-| `run_radar.bat`, `run_demo.bat` | запуск с платой-приёмником на COM10 / демо без плат |
+| `csi_radar.py` | программа на ПК (PyQt5 + pyqtgraph; Qt 5 работает и на Windows 7) |
+| `run_radar.bat`, `run_demo.bat` | запуск двойным щелчком: с платой-приёмником на COM10 / демо без плат. Сами находят Python и ставят зависимости, при ошибке окно не закрывается |
+| `python\` | переносимый Python 3.8 с библиотеками (не в git, см. ниже) |
 | `firmware/csi_send`, `firmware/csi_recv` | прошивки: передатчик и приёмник |
 | `firmware/build.ps1` | сборка и прошивка через ESP-IDF |
 | `ВЫСТУПЛЕНИЕ.md` | как расставить платы и что показывать |
@@ -37,8 +38,22 @@ powershell -ExecutionPolicy Bypass -File firmware\build.ps1 csi_recv COM10
 
 ## Программа на ПК
 
+### Быстрый запуск (в том числе на Windows 7)
+
+Скопировать папку проекта целиком (вместе с `python\` — переносимый Python 3.8 x64 с PyQt5, numpy,
+pyserial, pyqtgraph) и запустить `run_radar.bat` или `run_demo.bat`. Ничего устанавливать не нужно;
+нужна 64-битная Windows 7 SP1 или новее.
+
+Если папки `python\` нет, .bat ищет окружение `.venv`, затем Python 3.8–3.13 в системе
+(`py -3.8` … `py -3.13`, потом `python` в PATH), создаёт `.venv` и ставит зависимости из
+`requirements.txt` (при первом запуске нужен интернет). Если `pypi.org` недоступен, передайте зеркало:
+добавьте `-i https://mirrors.aliyun.com/pypi/simple` в строку `pip install -r requirements.txt` внутри .bat.
+При любой ошибке окно остаётся открытым с описанием.
+
+### Вручную
+
 ```powershell
-py -3.14 -m venv .venv
+py -3.8 -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 .venv\Scripts\python csi_radar.py --port COM10   # живые данные
 .venv\Scripts\python csi_radar.py --demo         # синтетические данные
